@@ -1,21 +1,23 @@
-# StreamFloodingEvents
+### Project Proposal:
+Tadd Bindas
+Intro to GPU Programming
+Dr. Ron Coleman
 
-### What
-Due to recent climate change, it seems the number stream flooding events have been increasing. The goal of this project is to analyze long term stream data from local watersheds of the Hudson river to understand these trends. 
+### What is this project?
+This project is a substitution for the Black Jack class project for Introduction to GPU Programming. What will be accomplished is speeding up a peak pick algorithm via running the algorithm on a GPU. A peak pick algorithm takes in one-dimensional data (a time series) and creates a matrix of data points corresponding to the peaks in the data. 
 
-#### Machine Learning 
+### What is the dataset?
+The dataset on which we will run the peak-pick function on is a time-series data of the discharge of Wappingers Creek. Wappingers Creek is a local watershed, and tributary to the Hudson River, which has USGS data of discharge going back over 40 years. By using a peak-pick function, we will be able to see how many flooding events have happened over a specific span of time, and determine if as the climate around us changes, flooding events are happening more often or not. This project can also be built upon in the future by finding the severity of flood events (taking the derivative of the flood curves). 
 
-###### Supervised Machine Learning:
-Using the long term data from local watersheds, we will be able to understand and predict events using various supervised machine learning techniques. Since there is a plethora of data, we should be able to hypothesize what varibles are predictors, run k-fold cross validation and various machine learning techniques, then try to make a model which will predict the frequency of storm events.
+### What are the codes/systems/libraries?
+The following codes will be used:
+-	R
+-	C
+-	Cuda C
+R relies on C to run various packages. Much of the coding will be handmade C-interfaces which will be run through R. I will have to create the peak-pick algorithm in C to run it on the GPU.
 
-###### Unsupervised Machine Learning:
-Understanding what a flood event is may be the most difficult part of the experiment. Looking from data, it is hard to understand when a stream is flowing below bank full, when it flows above bank full, or what the bank full value is. Using unsupervised machine learning simulations, we can understand what values correspond to bank full, which will then allow us to determine when there are storm/flooding events. 
+### How to assess performance:
+There exist various peak-pick functions in R which return different peaks in the time series data. Many can be sped up using different cores inside of the user’s machine. The performance of a GPU doing a peak-pick function can be tested through timing the amount of time it takes for a function to complete. Since there are working functions in R for finding function peaks, we will have a baseline time to compare the GPU time against. 
 
-#### GPU component
-Since there are so much data in this study, it is integral to use NVIDIA GPUs to speed up the machine learning processes to come to conclusions quicker. CUDA C interfaces will be how this is addressed.
-
-### Why
-
-
-
-### Project Template
+### Deliverables:
+A report which details the project code, a plot which has the peaks highlighted via either a dot or a different color, and a discussion on what it means. All code will be uploaded to github and iLearn 
