@@ -50,7 +50,7 @@ avgFilter[lag] <- mean(y[0:lag])
 stdFilter[lag] <- sd(y[0:lag])
 
 
-  ##############################
+##############################
 # ----- Wappingers Data -----
 ##############################
 # install.packages("readxl")
