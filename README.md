@@ -21,3 +21,7 @@ There exist various peak-pick functions in R which return different peaks in the
 
 ### Deliverables:
 A report which details the project code, a plot which has the peaks highlighted via either a dot or a different color, and a discussion on what it means. All code will be uploaded to github and iLearn 
+
+### Important Links:
+- [How to create a C interface to R](http://www.biostat.jhsph.edu/~rpeng/docs/interface.pdf)
+- [How to make a GPU application for R](https://devblogs.nvidia.com/accelerate-r-applications-cuda/)
