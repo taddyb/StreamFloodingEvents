@@ -17,14 +17,24 @@ void peak_pick(double* y, int* length, double* signals, double* threshold,
   // }
 
   // Loops through the time series data starting one spot ahead of the lag value
-  for (i = (*lag + 1); i < *length; i++) {
+  // for (i = (*lag + 1); i < *length; i++) {
     // Determines if the time series data is above the threshold and is a peak value
+    i = *lag + 1;
+    Rprintf("i: %d\n",i);
+    Rprintf("lag: %d\n", *lag);
+    Rprintf("y[i]: %f\n",y[i]);
+    Rprintf("avgFilter[i-1]: %f\n",avgFilter[i-1]);
+    Rprintf("threshold: %f\n",threshold);
+    Rprintf("stdFilter[i-1]: %f\n",stdFilter[i-1]);
     if (fabs(y[i] - avgFilter[i-1]) > (*threshold * stdFilter[i-1])) {
       if (y[i] > avgFilter[i-1]) {
         signals[i] = 1;
       } else {
         signals[i] = - 1;
       }
+      Rprintf("*influence: %f\n",*influence);
+      Rprintf("(1 - *influence): %f\n",(1 - *influence));
+      Rprintf("filteredY[i-1]: %f\n",filteredY[i-1]);
       filteredY[i] = *influence * y[i] + (1 - *influence) * filteredY[i-1];
     } else {
         signals[i] = 0;
@@ -50,7 +60,7 @@ void peak_pick(double* y, int* length, double* signals, double* threshold,
 
     sumAvg = 0;
     sumStd = 0;
-  }
+  // }
 
 }
 

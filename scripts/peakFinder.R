@@ -54,20 +54,33 @@ threshold <- 5
 influence <- 0
 
 signals <- rep(0,length(y))
-filteredY <- y[0:lag]
-avgFilter <- rep(-1,length(y))
-stdFilter <- rep(-1,length(y))
+filteredY <- rep(0, length(y))
+filteredY[0:lag] <- y[0:lag]
+avgFilter <- rep(0,length(y))
+stdFilter <- rep(0,length(y))
 avgFilter[lag] <- mean(y[0:lag])
 stdFilter[lag] <- sd(y[0:lag])
 # lag       <- 200
 # threshold <- 3.5
 # influence <- 0.001
 
-dyn.load("cuda/peakPick.so")
+# For windows:
+dyn.load("cuda/peakPick.dll")
+# For Mac:
+# dyn.load("cuda/peakPick.so")
+
 .C("peak_pick", y=as.double(y), length=as.integer(length(y)), 
    signals=as.double(signals),threshold=as.double(threshold), 
    influence=as.double(influence), filteredY=as.double(filteredY),
    avgFilter=as.double(avgFilter),stdFilter=as.double(stdFilter), lag=as.integer(lag))
+
+# Plot result
+par(mfrow = c(2,1),oma = c(2,2,0,0) + 0.1,mar = c(0,0,2,1) + 0.2)
+plot(1:length(y),y,type="l",ylab="",xlab="") 
+lines(1:length(y),result$avgFilter,type="l",col="cyan",lwd=2)
+lines(1:length(y),result$avgFilter+threshold*result$stdFilter,type="l",col="green",lwd=2)
+lines(1:length(y),result$avgFilter-threshold*result$stdFilter,type="l",col="green",lwd=2)
+plot(result$signals,type="S",col="red",ylab="",xlab="",ylim=c(-1.5,1.5),lwd=2)
 
 
 ##############################
