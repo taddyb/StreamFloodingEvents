@@ -55,16 +55,19 @@ influence <- 0
 
 signals <- rep(0,length(y))
 filteredY <- y[0:lag]
-avgFilter <- rep(NULL,length(y))
-stdFilter <- rep(NULL,length(y))
+avgFilter <- rep(-1,length(y))
+stdFilter <- rep(-1,length(y))
 avgFilter[lag] <- mean(y[0:lag])
 stdFilter[lag] <- sd(y[0:lag])
 # lag       <- 200
 # threshold <- 3.5
 # influence <- 0.001
 
-dyn.load("cuda/peakPick.dll")
-.C("peak_pick", y=as.integer(y), length=as.integer(length(y)), signals=as.integer(signals),threshold=as.double(threshold), influence=as.double(influence), filteredY=as.integer(filteredY), avgFilter=as.double(avgFilter),stdFilter=as.double(stdFilter), lag=as.integer(lag))
+dyn.load("cuda/peakPick.so")
+.C("peak_pick", y=as.double(y), length=as.integer(length(y)), 
+   signals=as.double(signals),threshold=as.double(threshold), 
+   influence=as.double(influence), filteredY=as.double(filteredY),
+   avgFilter=as.double(avgFilter),stdFilter=as.double(stdFilter), lag=as.integer(lag))
 
 
 ##############################

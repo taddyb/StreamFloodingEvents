@@ -1,21 +1,26 @@
 #include <R.h>
 #include <Rmath.h>
 
-void peak_pick(int *y, int* length, int* signals, double* threshold,
-                double* influence, int* filteredY, double* avgFilter,
+void peak_pick(double* y, int* length, double* signals, double* threshold,
+                double* influence, double* filteredY, double* avgFilter,
                   double* stdFilter, int* lag) {
-  int i, j, k;
-  int sumAvg = 0;
-  int sumStd = 0;
-  int mean = 0;
-  int std = 0;
 
-  Rprintf("%f\n",avgFilter[50]);
+  unsigned int i = 0;
+  unsigned int j = 0;
+  double sumAvg = 0;
+  double sumStd = 0;
+  double mean = 0;
+  double std = 0;
 
-  for (i = *(lag + 1); i < *length; i++) {
-    if (abs(y[i] - avgFilter[i-1]) > (*threshold * stdFilter[i-1])) {
+  // for (i = 0; i < *length; i++) {
+  //   Rprintf("avgFilter: %f\n", avgFilter[i]);
+  // }
+
+  // Loops through the time series data starting one spot ahead of the lag value
+  for (i = (*lag + 1); i < *length; i++) {
+    // Determines if the time series data is above the threshold and is a peak value
+    if (fabs(y[i] - avgFilter[i-1]) > (*threshold * stdFilter[i-1])) {
       if (y[i] > avgFilter[i-1]) {
-
         signals[i] = 1;
       } else {
         signals[i] = - 1;
@@ -26,20 +31,25 @@ void peak_pick(int *y, int* length, int* signals, double* threshold,
         filteredY[i] = y[i];
       }
 
+    // Calculates new mean of point
     for (j = (i - *lag); j < i; j++) {
-      sumAvg = sumAvg + filteredY[j];
+      sumAvg += filteredY[j];
     }
 
     mean = sumAvg / *lag;
 
-    for(k = (i - *lag); k < i; k++) {
-      sumStd = sumStd + (filteredY[k] - mean);
+    //Calculates new Standard Deviation of point
+    for(j = (i - *lag); j < i; j++) {
+      sumStd += (filteredY[j] - mean);
     }
 
-    std = sqrt(sumStd / *lag);
+    std = sqrt(fabs(sumStd / *lag));
 
     avgFilter[i] = mean;
     stdFilter[i] = std;
+
+    sumAvg = 0;
+    sumStd = 0;
   }
 
 }
