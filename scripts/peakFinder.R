@@ -60,26 +60,29 @@ avgFilter <- rep(0,length(y))
 stdFilter <- rep(0,length(y))
 avgFilter[lag] <- mean(y[0:lag])
 stdFilter[lag] <- sd(y[0:lag])
+
 # lag       <- 200
 # threshold <- 3.5
 # influence <- 0.001
 
 # For windows:
-dyn.load("cuda/peakPick.dll")
+# dyn.load("cuda/peakPick.dll")
 # For Mac:
-# dyn.load("cuda/peakPick.so")
+dyn.load("cuda/peakPick.so")
 
-.C("peak_pick", y=as.double(y), length=as.integer(length(y)), 
+cResult = .C("peak_pick", y=as.double(y), length=as.integer(length(y)), 
    signals=as.double(signals),threshold=as.double(threshold), 
    influence=as.double(influence), filteredY=as.double(filteredY),
-   avgFilter=as.double(avgFilter),stdFilter=as.double(stdFilter), lag=as.integer(lag))
+   avgFilter=as.double(avgFilter),stdFilter=as.double(stdFilter), 
+   lag=as.integer(lag))
+
 
 # Plot result
 par(mfrow = c(2,1),oma = c(2,2,0,0) + 0.1,mar = c(0,0,2,1) + 0.2)
 plot(1:length(y),y,type="l",ylab="",xlab="") 
-lines(1:length(y),result$avgFilter,type="l",col="cyan",lwd=2)
-lines(1:length(y),result$avgFilter+threshold*result$stdFilter,type="l",col="green",lwd=2)
-lines(1:length(y),result$avgFilter-threshold*result$stdFilter,type="l",col="green",lwd=2)
+lines(1:length(y),cResult$avgFilter,type="l",col="cyan",lwd=2)
+lines(1:length(y),cResult$avgFilter+threshold*cResult$stdFilter,type="l",col="green",lwd=2)
+lines(1:length(y),cResult$avgFilter-threshold*cResult$stdFilter,type="l",col="green",lwd=2)
 plot(result$signals,type="S",col="red",ylab="",xlab="",ylim=c(-1.5,1.5),lwd=2)
 
 
@@ -110,10 +113,13 @@ end_time - start_time
 # ----- Stack Overflow Stuff -
 ##############################
 ThresholdingAlgo <- function(y,lag,threshold,influence) {
-  signals <- rep(0,length(y))
-  filteredY <- y[0:lag]
-  avgFilter <- NULL
-  stdFilter <- NULL
+  sumMeanArray <- rep(as.double(0),length(y))
+  sumStdArray <- rep(as.double(0),length(y))
+  signals <- rep(as.double(0),length(y))
+  filteredY <- rep(as.double(0), length(y))
+  filteredY[0:lag] <- y[0:lag]
+  avgFilter <- rep(as.double(0),length(y))
+  stdFilter <- rep(as.double(0),length(y))
   avgFilter[lag] <- mean(y[0:lag])
   stdFilter[lag] <- sd(y[0:lag])
   for (i in (lag+1):length(y)){
@@ -128,20 +134,24 @@ ThresholdingAlgo <- function(y,lag,threshold,influence) {
       signals[i] <- 0
       filteredY[i] <- y[i]
     }
+    
+    sumMeanArray[i] <- sum(filteredY[(i-lag):i])
+    sumStdArray[i] <- sum(filteredY[(i-lag):i] - mean(filteredY[(i-lag):i]))
+
     avgFilter[i] <- mean(filteredY[(i-lag):i])
     stdFilter[i] <- sd(filteredY[(i-lag):i])
   }
-  return(list("signals"=signals,"avgFilter"=avgFilter,"stdFilter"=stdFilter))
+  return(list("signals"=signals,"avgFilter"=avgFilter,"stdFilter"=stdFilter,
+              "sumMeanArray"=sumMeanArray, "sumStdArray"=sumStdArray, 
+              "filteredY"=filteredY))
 }
 
-y <- dataPass
 
-lag       <- 200
-threshold <- 3.5
-influence <- 0.001
 
 # Run algo with lag = 30, threshold = 5, influence = 0
 result <- ThresholdingAlgo(y,lag,threshold,influence)
+
+diff = (result$stdFilter - cResult$stdFilter)
 
 # Plot result
 par(mfrow = c(2,1),oma = c(2,2,0,0) + 0.1,mar = c(0,0,2,1) + 0.2)
